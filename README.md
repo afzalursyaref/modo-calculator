@@ -37,7 +37,7 @@ Kalkulator Chrome Extension bergaya macOS dengan smart paste, format region, his
 
 1. Clone repo ini:
    ```sh
-   git clone https://github.com/<your-username>/modo-calculator.git
+   git clone https://github.com/afzalursyaref/modo-calculator.git
    ```
 2. Buka `chrome://extensions` di Chrome.
 3. Aktifkan **Developer mode** (pojok kanan atas).
