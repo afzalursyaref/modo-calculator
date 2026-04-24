@@ -1,0 +1,27 @@
+# macOS
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+
+# VS Code (optional — uncomment if needed)
+# .vscode/
+
+# Node (just in case — no deps yet, but keeps future contributors tidy)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Claude Code personal context
+.claude/
+CLAUDE.md
+
+# Chrome extension build artifacts (if you ever zip for Web Store)
+*.zip
+*.crx
+*.pem
+
+# OS / editor swap files
+*.swp
+*.swo
+*~

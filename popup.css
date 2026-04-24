@@ -1,0 +1,609 @@
+/* ========== Modo Calculator — macOS-inspired ========== */
+
+:root {
+  --width: 320px;
+  --radius-app: 14px;
+  --radius-btn: 12px;
+  --gap: 8px;
+  --pad: 14px;
+
+  /* Light theme */
+  --bg: rgba(245, 245, 247, 0.92);
+  --bg-solid: #f5f5f7;
+  --titlebar: rgba(230, 230, 232, 0.7);
+  --text: #1d1d1f;
+  --text-dim: #6e6e73;
+  --display-bg: rgba(255, 255, 255, 0.6);
+  --btn-num: #ffffff;
+  --btn-num-hover: #f0f0f3;
+  --btn-num-active: #e5e5ea;
+  --btn-fn: #d4d4d8;
+  --btn-fn-hover: #c7c7cc;
+  --btn-fn-active: #b8b8bd;
+  --btn-op: #ff9500;
+  --btn-op-hover: #ffa520;
+  --btn-op-active: #e68600;
+  --btn-eq: #ff9500;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.18), 0 1px 0 rgba(255, 255, 255, 0.6) inset;
+  --border: rgba(0, 0, 0, 0.08);
+  --panel-bg: rgba(252, 252, 254, 0.98);
+  --accent: #007aff;
+}
+
+[data-theme="dark"] {
+  --bg: rgba(28, 28, 30, 0.92);
+  --bg-solid: #1c1c1e;
+  --titlebar: rgba(40, 40, 42, 0.7);
+  --text: #f5f5f7;
+  --text-dim: #98989d;
+  --display-bg: rgba(0, 0, 0, 0.25);
+  --btn-num: #505053;
+  --btn-num-hover: #5c5c5f;
+  --btn-num-active: #6a6a6d;
+  --btn-fn: #a5a5aa;
+  --btn-fn-hover: #b5b5ba;
+  --btn-fn-active: #969699;
+  --btn-op: #ff9f0a;
+  --btn-op-hover: #ffae2b;
+  --btn-op-active: #e68a00;
+  --btn-eq: #ff9f0a;
+  --shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  --border: rgba(255, 255, 255, 0.08);
+  --panel-bg: rgba(36, 36, 38, 0.98);
+  --accent: #0a84ff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: rgba(28, 28, 30, 0.92);
+    --bg-solid: #1c1c1e;
+    --titlebar: rgba(40, 40, 42, 0.7);
+    --text: #f5f5f7;
+    --text-dim: #98989d;
+    --display-bg: rgba(0, 0, 0, 0.25);
+    --btn-num: #505053;
+    --btn-num-hover: #5c5c5f;
+    --btn-num-active: #6a6a6d;
+    --btn-fn: #a5a5aa;
+    --btn-fn-hover: #b5b5ba;
+    --btn-fn-active: #969699;
+    --btn-op: #ff9f0a;
+    --btn-op-hover: #ffae2b;
+    --btn-op-active: #e68a00;
+    --btn-eq: #ff9f0a;
+    --shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+    --border: rgba(255, 255, 255, 0.08);
+    --panel-bg: rgba(36, 36, 38, 0.98);
+    --accent: #0a84ff;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  /* Tidak diberi width tetap supaya detached window mengikuti viewport */
+}
+
+body {
+  width: var(--width);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  background: transparent;
+  user-select: none;
+}
+
+/* Detached/PiP mode: full viewport */
+body.pip {
+  width: 100vw;
+}
+
+body {
+  padding: 0;
+  overflow: hidden;
+}
+
+.app {
+  width: var(--width);
+  background: var(--bg);
+  backdrop-filter: saturate(180%) blur(30px);
+  -webkit-backdrop-filter: saturate(180%) blur(30px);
+  border-radius: var(--radius-app);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Workspace: pembungkus history sidebar + calculator */
+.workspace {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+}
+
+.calculator {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* ===== Title bar ===== */
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 12px;
+  background: var(--titlebar);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+}
+
+.traffic-lights {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+  border: 0.5px solid rgba(0, 0, 0, 0.08);
+}
+
+.dot-red { background: #ff5f57; }
+.dot-yellow { background: #febc2e; }
+.dot-green { background: #28c840; }
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  letter-spacing: 0.2px;
+}
+
+.title-actions {
+  display: flex;
+  gap: 4px;
+  -webkit-app-region: no-drag;
+}
+
+.icon-btn {
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-dim);
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.icon-btn:hover {
+  background: rgba(127, 127, 127, 0.18);
+  color: var(--text);
+}
+.icon-btn.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+/* ===== Display ===== */
+.display {
+  padding: 14px var(--pad) 10px;
+  background: var(--display-bg);
+  text-align: right;
+  min-height: 92px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.expr {
+  font-size: 13px;
+  color: var(--text-dim);
+  min-height: 18px;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+  line-height: 1.2;
+}
+
+/* Live preview hasil sementara — dim, bedakan dari hasil final */
+.preview {
+  font-size: 15px;
+  color: var(--text-dim);
+  min-height: 0;
+  height: 0;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.15s, height 0.15s;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+  line-height: 1.2;
+  font-weight: 500;
+}
+.preview.show {
+  opacity: 0.7;
+  height: auto;
+  min-height: 20px;
+}
+.preview::before {
+  content: '= ';
+  opacity: 0.55;
+  font-weight: 400;
+}
+
+.result {
+  font-size: 38px;
+  font-weight: 300;
+  letter-spacing: -0.5px;
+  line-height: 1.05;
+  margin-top: 4px;
+  font-variant-numeric: tabular-nums;
+  word-break: break-all;
+  outline: none;
+  cursor: text;
+  user-select: text;
+}
+.result.shrink-1 { font-size: 30px; }
+.result.shrink-2 { font-size: 24px; }
+.result.shrink-3 { font-size: 18px; }
+
+.result.flash {
+  animation: flash 0.18s ease;
+}
+@keyframes flash {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); opacity: 0.85; }
+  100% { transform: scale(1); }
+}
+
+/* ===== Toast ===== */
+.toast {
+  position: absolute;
+  top: 46px;
+  left: 50%;
+  transform: translate(-50%, -10px);
+  background: rgba(0, 0, 0, 0.78);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+  z-index: 50;
+  white-space: nowrap;
+  max-width: calc(100% - 24px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ===== Keypad ===== */
+.keypad {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--gap);
+  padding: var(--pad);
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  font-family: inherit;
+  font-size: 19px;
+  font-weight: 400;
+  height: 52px;
+  border-radius: var(--radius-btn);
+  cursor: pointer;
+  color: var(--text);
+  background: var(--btn-num);
+  transition: background 0.12s, transform 0.06s;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.btn:hover { background: var(--btn-num-hover); }
+.btn:active, .btn.pressed {
+  background: var(--btn-num-active);
+  transform: scale(0.96);
+}
+
+.btn-fn {
+  background: var(--btn-fn);
+  font-weight: 500;
+}
+.btn-fn:hover { background: var(--btn-fn-hover); }
+.btn-fn:active, .btn-fn.pressed { background: var(--btn-fn-active); }
+
+.btn-op,
+.btn-eq {
+  background: var(--btn-op);
+  color: #fff;
+  font-weight: 500;
+  font-size: 22px;
+}
+.btn-op:hover, .btn-eq:hover { background: var(--btn-op-hover); }
+.btn-op:active, .btn-op.pressed, .btn-eq:active, .btn-eq.pressed {
+  background: var(--btn-op-active);
+}
+
+.btn-op.selected {
+  background: #fff;
+  color: var(--btn-op);
+}
+
+.btn-zero {
+  grid-column: span 2;
+}
+
+.btn-bksp {
+  grid-column: span 2;
+}
+.btn-bksp svg {
+  vertical-align: middle;
+}
+
+/* ===== Panels (history & settings) ===== */
+.panel {
+  position: absolute;
+  inset: 0;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.18s ease;
+}
+
+/* Atribut [hidden] di-override oleh display:flex di atas — paksa none */
+.panel[hidden] {
+  display: none !important;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px var(--pad);
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+}
+
+.panel-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.back-btn {
+  flex-shrink: 0;
+}
+
+.spacer {
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  color: var(--accent);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+.link-btn:hover { background: rgba(127,127,127,0.12); }
+
+/* History */
+.history-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  padding: 4px 0;
+  max-height: 320px;
+}
+.history-item {
+  padding: 8px var(--pad);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.history-item:hover { background: rgba(127,127,127,0.08); }
+.history-item .h-expr {
+  font-size: 12px;
+  color: var(--text-dim);
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.history-item .h-result {
+  font-size: 16px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-empty {
+  text-align: center;
+  color: var(--text-dim);
+  padding: 40px 20px;
+  font-size: 13px;
+}
+
+/* Settings */
+.setting-group {
+  padding: 10px var(--pad);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.setting-group label {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.seg {
+  display: flex;
+  background: rgba(127,127,127,0.16);
+  border-radius: 8px;
+  padding: 2px;
+  gap: 2px;
+}
+.seg button {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--text);
+  transition: background 0.12s;
+}
+.seg button:hover { background: rgba(127,127,127,0.12); }
+.seg button.active {
+  background: var(--bg-solid);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+
+.toggle {
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  color: var(--text) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+.toggle input { accent-color: var(--accent); }
+
+.setting-hint {
+  padding: 12px var(--pad);
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.setting-hint kbd {
+  font-family: inherit;
+  background: rgba(127,127,127,0.18);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(127,127,127,0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ===== PiP / detached window mode ===== */
+body.pip {
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+}
+body.pip .app {
+  width: 100%;
+  height: 100vh;
+  border-radius: 0;
+  border: none;
+}
+body.pip .keypad {
+  flex: 1;
+  padding: 10px;
+  gap: 6px;
+}
+body.pip .btn {
+  height: auto;
+  min-height: 40px;
+  font-size: 17px;
+}
+body.pip .btn-op,
+body.pip .btn-eq {
+  font-size: 20px;
+}
+body.pip .display {
+  flex-shrink: 0;
+  padding: 10px 14px 8px;
+}
+body.pip .result { font-size: 32px; }
+body.pip .result.shrink-1 { font-size: 26px; }
+body.pip .result.shrink-2 { font-size: 22px; }
+body.pip .result.shrink-3 { font-size: 17px; }
+
+/* ===== RESPONSIVE: wide layout (history sebagai sidebar kiri) ===== */
+@media (min-width: 560px) {
+  /* History panel pindah jadi sidebar relatif (tidak overlay) */
+  .panel-history {
+    position: relative;
+    inset: auto;
+    width: 240px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    border-radius: 0;
+    animation: none;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 1;
+    height: auto;
+  }
+  .panel-history .history-list { max-height: none; }
+
+  /* Sembunyikan back button — toggle pakai tombol history di titlebar */
+  .panel-history .back-btn { display: none; }
+  .panel-history .panel-header h2 { text-align: left; }
+
+  /* Calculator tetap proporsional, center di area yg tersisa */
+  .calculator {
+    max-width: 360px;
+    min-width: 320px;
+    margin: 0 auto;
+  }
+
+  /* Settings overlay tetap penuh */
+  .panel-settings { border-radius: 0; }
+}
+
+@media (min-width: 720px) {
+  .panel-history { width: 280px; }
+}
