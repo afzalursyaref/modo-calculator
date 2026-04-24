@@ -8,10 +8,11 @@ Kalkulator Chrome Extension bergaya macOS dengan smart paste, format region, his
 
 > **Note:** UI saat ini full Bahasa Indonesia. PR untuk i18n (`chrome.i18n`) sangat diterima.
 
-<!-- Tambahkan screenshot di sini:
-![Light mode](docs/screenshot-light.png)
-![Dark mode + PiP](docs/screenshot-pip.png)
--->
+|              Popup (light)              |     Picture-in-Picture (dark)     |
+| :-------------------------------------: | :-------------------------------: |
+| ![Popup light](docs/screenshot-light.png) | ![PiP dark](docs/screenshot-dark-pip.png) |
+
+![Detached window dengan sidebar history](docs/screenshot-dark-window.png)
 
 ## Fitur
 
